@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 200 70% 7%;
+    --foreground: 186 30% 96%;
+    
+    --card: 200 70% 10%;
+    --card-foreground: 186 30% 96%;
+    
+    --popover: 200 70% 7%;
+    --popover-foreground: 186 30% 96%;
+    
+    --primary: 168 54% 44%;
+    --primary-foreground: 200 70% 7%;
+    
+    --secondary: 200 30% 20%;
+    --secondary-foreground: 186 30% 96%;
+    
+    --muted: 200 30% 20%;
+    --muted-foreground: 186 20% 80%;
+    
+    --accent: 168 54% 44%;
+    --accent-foreground: 200 70% 7%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 186 30% 96%;
+
+    --border: 200 30% 20%;
+    --input: 200 30% 20%;
+    --ring: 168 54% 44%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.2) 0%, hsl(var(--secondary) / 0.3) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.text-shadow {
+  text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+}
+
+.custom-switch {
+  @apply bg-secondary border border-primary/30;
+}
+
+.custom-switch[data-state="checked"] {
+  @apply bg-primary border-primary;
+}
+
+.custom-switch::before {
+  @apply bg-primary/50;
+}
+
+.custom-switch[data-state="checked"]::before {
+  @apply bg-background;
+}
+
+/* Add smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.duration-300 {
+  transition-duration: 300ms;
+}
+
