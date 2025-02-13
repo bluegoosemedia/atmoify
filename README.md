@@ -2,6 +2,8 @@
 
 Atmoify is a web application that allows users to create their perfect atmospheric environment for working, studying, or relaxing. It combines audio tracks, ambient sound effects, and focus/sleep timers to enhance productivity and relaxation.
 
+![Screenshot](screenshots/image.png)
+
 ## Features
 
 - Add YouTube audio tracks
