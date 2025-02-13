@@ -23,9 +23,7 @@ Atmoify is a web application that allows users to create their perfect atmospher
 
 ### Instructions
 
-1. Clone this repository to your local machine.
-
-2. Create a `docker-compose.yml` file with the following content:
+1. Create a `docker-compose.yml` file with the following content:
 
 ```yaml
 version: '3.9'
@@ -39,4 +37,4 @@ services:
       - NODE_ENV=production
 ```
 
-3. Run `docker-compose up -d` to start the container.
+2. Run `docker-compose up -d` to start the container.
