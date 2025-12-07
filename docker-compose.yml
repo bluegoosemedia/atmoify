@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/bluegoosemedia/atmoify:latest
+    image: ghcr.io/bluegoosemedia/atmoify
     ports:
       - "3000:3000"
     environment:

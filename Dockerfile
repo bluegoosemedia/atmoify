@@ -1,5 +1,5 @@
 # Use Node.js 20 (LTS version)
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Set the working directory in the container
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN node --version && npm --version
 
 # Install dependencies with verbose logging
-RUN npm install --verbose --legacy-peer-deps
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
