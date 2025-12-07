@@ -23,14 +23,14 @@ Atmoify is a web application that allows users to create their perfect atmospher
 
 ### Instructions
 
-1. Create a `docker-compose.yml` file with the following content:
+1. Create a `compose.yaml` file with the following content:
 
 ```yaml
 version: '3.9'
 
 services:
   app:
-    image: ghcr.io/bluegoosemedia/atmoify:latest
+    image: ghcr.io/bluegoosemedia/atmoify
     ports:
       - "3000:3000"
     environment:
