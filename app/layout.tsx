@@ -18,10 +18,10 @@ export const metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.NodeNode
 }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body className={`${inter.className} bg-background text-foreground relative overflow-hidden h-full`}>
         <JotaiProvider>
           <TimerProvider>

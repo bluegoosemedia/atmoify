@@ -46,17 +46,15 @@ export default function Header({
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 w-full border-b border-border/40">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-4">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 flex-shrink-0">
-            <a className="flex items-center space-x-2" href="/">
-              <Image src="/atmoify-logo.png" alt="Atmoify Logo" width={32} height={32} />
-              <span className="font-bold hidden sm:inline">Atmoify</span>
-            </a>
-          </div>
+      <div className="relative flex h-14 w-full items-center px-4 mx-auto max-w-screen-2xl">
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          <a className="flex items-center space-x-2" href="/">
+            <Image src="/atmoify-logo.png" alt="Atmoify Logo" width={32} height={32} />
+            <span className="font-bold hidden sm:inline">Atmoify</span>
+          </a>
         </div>
-        <div className="flex items-center justify-center">
-          <div className="flex space-x-1 sm:space-x-2 overflow-x-auto">
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center">
+          <div className="flex space-x-1 sm:space-x-2">
             <Tab isActive={currentTab === "audio-tracks"} onClick={() => setCurrentTab("audio-tracks")}>
               <span className="sm:hidden">Tracks</span>
               <span className="hidden sm:inline">Audio Tracks</span>
@@ -70,7 +68,7 @@ export default function Header({
             </Tab>
           </div>
         </div>
-        <div className="flex items-center justify-end">
+        <div className="ml-auto flex items-center">
           <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" onClick={toggleMenu}>
