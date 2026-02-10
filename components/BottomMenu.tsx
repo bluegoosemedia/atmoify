@@ -1,16 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Menu, GitlabIcon as GitHub, Coffee, Clock, Save, Upload } from "lucide-react"
+import { Menu, GitlabIcon as GitHub, Coffee, Clock, Save, Upload, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu"
 import { TimerSelector } from "./timer/TimerSelector"
 import { SaveProfileDialog } from "@/components/SaveProfileDialog"
 import { LoadProfileDialog } from "@/components/LoadProfileDialog"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
 import Link from "next/link"
+import { useTheme } from "@/hooks/useTheme"
+import { themeKeys } from "@/lib/themes"
+import { ThemedLogo } from "@/components/ThemedLogo"
 
 type TabType = "audio-tracks" | "mixer" | "sound-effects"
 
@@ -21,19 +23,22 @@ const Tab = ({
 }: { children: React.ReactNode; isActive: boolean; onClick: () => void }) => (
   <button
     className={cn(
-      "px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-200",
-      "border-b-2",
+      "px-6 py-4 text-sm font-semibold transition-all duration-200 rounded-t-md relative",
+      "border-t-2 border-x-2 border-border",
       isActive
-        ? "border-primary text-primary"
-        : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground",
+        ? "bg-card text-primary border-t-primary shadow-[0_-2px_10px_rgba(0,0,0,0.3)]"
+        : "bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary",
     )}
     onClick={onClick}
   >
     {children}
+    {isActive && (
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_4px_hsl(var(--primary)),0_0_8px_hsl(var(--primary)/0.8),0_0_16px_hsl(var(--primary)/0.3)]" />
+    )}
   </button>
 )
 
-export default function Header({
+export default function BottomMenu({
   currentTab,
   setCurrentTab,
 }: { currentTab: TabType; setCurrentTab: (tab: TabType) => void }) {
@@ -41,37 +46,37 @@ export default function Header({
   const [isTimerDialogOpen, setIsTimerDialogOpen] = useState(false)
   const [isSaveProfileDialogOpen, setIsSaveProfileDialogOpen] = useState(false)
   const [isLoadProfileDialogOpen, setIsLoadProfileDialogOpen] = useState(false)
+  const { currentTheme, setTheme, themes } = useTheme()
 
   const toggleMenu = () => setIsOpen(!isOpen)
 
   return (
-    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 w-full border-b border-border/40">
-      <div className="relative flex h-14 w-full items-center px-4 mx-auto max-w-screen-2xl">
-        <div className="flex items-center space-x-2 flex-shrink-0">
-          <a className="flex items-center space-x-2" href="/">
-            <Image src="/atmoify-logo.png" alt="Atmoify Logo" width={32} height={32} />
-            <span className="font-bold hidden sm:inline">Atmoify</span>
-          </a>
+    <header className="bg-secondary/80 backdrop-blur-sm z-50 w-full border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.5)] relative">
+      <div className="relative flex h-auto w-full items-end justify-center px-4 sm:px-6 mx-auto max-w-screen-2xl">
+        {/* Tabs - Center */}
+        <div className="flex items-end space-x-1">
+          <Tab isActive={currentTab === "audio-tracks"} onClick={() => setCurrentTab("audio-tracks")}>
+            Tracks
+          </Tab>
+          <Tab isActive={currentTab === "mixer"} onClick={() => setCurrentTab("mixer")}>
+            Mixer
+          </Tab>
+          <Tab isActive={currentTab === "sound-effects"} onClick={() => setCurrentTab("sound-effects")}>
+            Effects
+          </Tab>
         </div>
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center">
-          <div className="flex space-x-1 sm:space-x-2">
-            <Tab isActive={currentTab === "audio-tracks"} onClick={() => setCurrentTab("audio-tracks")}>
-              <span className="sm:hidden">Tracks</span>
-              <span className="hidden sm:inline">Audio Tracks</span>
-            </Tab>
-            <Tab isActive={currentTab === "mixer"} onClick={() => setCurrentTab("mixer")}>
-              Mixer
-            </Tab>
-            <Tab isActive={currentTab === "sound-effects"} onClick={() => setCurrentTab("sound-effects")}>
-              <span className="sm:hidden">Sounds</span>
-              <span className="hidden sm:inline">Sound Effects</span>
-            </Tab>
-          </div>
-        </div>
-        <div className="ml-auto flex items-center">
-          <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={toggleMenu}>
+      </div>
+      
+      {/* Logo - Bottom Left Corner */}
+      <div className="fixed left-4 sm:left-6 bottom-2 z-[60]">
+        <ThemedLogo />
+      </div>
+      
+      {/* Menu - Bottom Right Corner */}
+      <div className="fixed right-4 sm:right-6 bottom-2 z-[60]">
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" onClick={toggleMenu} className="h-9 w-9">
                 <motion.div
                   animate={isOpen ? "open" : "closed"}
                   variants={{
@@ -80,16 +85,35 @@ export default function Header({
                   }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-5 w-5" />
                 </motion.div>
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 mb-2">
               <DropdownMenuItem onSelect={() => setIsTimerDialogOpen(true)}>
                 <Clock className="mr-2 h-4 w-4" />
                 <span>Timer</span>
               </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Palette className="mr-2 h-4 w-4" />
+                  <span>Theme</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {themeKeys.map((themeKey) => (
+                    <DropdownMenuItem
+                      key={themeKey}
+                      onSelect={() => setTheme(themeKey)}
+                      className={cn(
+                        currentTheme === themeKey && "bg-primary/10 text-primary"
+                      )}
+                    >
+                      {themes[themeKey].name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
               <DropdownMenuItem onSelect={() => setIsSaveProfileDialogOpen(true)}>
                 <Save className="mr-2 h-4 w-4" />
                 <span>Save Profile</span>
@@ -126,8 +150,8 @@ export default function Header({
           <SaveProfileDialog open={isSaveProfileDialogOpen} onOpenChange={setIsSaveProfileDialogOpen} />
           <LoadProfileDialog open={isLoadProfileDialogOpen} onOpenChange={setIsLoadProfileDialogOpen} />
         </div>
-      </div>
-    </header>
-  )
-}
+      </header>
+    )
+  }
+
 

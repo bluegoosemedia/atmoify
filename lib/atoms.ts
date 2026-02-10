@@ -26,6 +26,8 @@ interface AudioTrack {
   url: string
   volume: number
   isPlaying: boolean
+  loopPlaylist: boolean
+  loopTrack: boolean
 }
 
 export const audioTracksAtom = atom<AudioTrack[]>([])

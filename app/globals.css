@@ -4,35 +4,48 @@
 
 @layer base {
   :root {
-    --background: 200 70% 7%;
-    --foreground: 186 30% 96%;
+    /* Dark professional mixer background */
+    --background: 220 15% 8%;
+    --foreground: 0 0% 95%;
     
-    --card: 200 70% 10%;
-    --card-foreground: 186 30% 96%;
+    /* Mixer panel/card color - slightly lighter than background */
+    --card: 220 12% 12%;
+    --card-foreground: 0 0% 95%;
     
-    --popover: 200 70% 7%;
-    --popover-foreground: 186 30% 96%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 95%;
     
-    --primary: 168 54% 44%;
-    --primary-foreground: 200 70% 7%;
+    /* Accent color for active/illuminated elements - bright amber/orange */
+    --primary: 38 92% 50%;
+    --primary-foreground: 220 15% 8%;
     
-    --secondary: 200 30% 20%;
-    --secondary-foreground: 186 30% 96%;
+    /* Secondary elements - dark gray with slight blue tint */
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 0 0% 90%;
     
-    --muted: 200 30% 20%;
-    --muted-foreground: 186 20% 80%;
+    --muted: 220 10% 25%;
+    --muted-foreground: 0 0% 65%;
     
-    --accent: 168 54% 44%;
-    --accent-foreground: 200 70% 7%;
+    /* Active/illuminated accent - warm amber/orange */
+    --accent: 38 92% 50%;
+    --accent-foreground: 220 15% 8%;
     
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 186 30% 96%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 200 30% 20%;
-    --input: 200 30% 20%;
-    --ring: 168 54% 44%;
+    /* Borders - subtle dark gray */
+    --border: 220 15% 20%;
+    --input: 220 15% 15%;
+    --ring: 38 92% 50%;
 
-    --radius: 0.5rem;
+    /* Mixer-style colors */
+    --mixer-fader: 220 10% 30%;
+    --mixer-meter: 120 100% 40%;
+    --mixer-peak: 0 100% 50%;
+    --mixer-button-on: 38 92% 50%;
+    --mixer-button-off: 220 15% 22%;
+
+    --radius: 0.25rem;
   }
 }
 

@@ -70,16 +70,22 @@ export function LoadProfileDialog({ open, onOpenChange }: LoadProfileDialogProps
         }))
         setSoundEffects(updatedCurrentEffects)
 
-        // Load new sound effects
-        const newSoundEffects = profile.soundEffects.map((effect) => ({
+        // Load new sound effects with all properties (playbackSpeed, loopSpeed, pan, etc.)
+        const loadedSoundEffects = profile.soundEffects.map((effect) => ({
           ...effect,
-          isPlaying: effect.isPlaying,
-          volume: effect.volume,
+          playbackSpeed: effect.playbackSpeed ?? 1,
+          loopSpeed: effect.loopSpeed ?? 0,
+          pan: effect.pan ?? 0,
         }))
-        setSoundEffects(newSoundEffects)
+        setSoundEffects(loadedSoundEffects)
 
-        // Update audio tracks
-        setAudioTracks(profile.audioTracks)
+        // Update audio tracks with all properties (loopPlaylist, loopTrack, etc.)
+        const loadedAudioTracks = profile.audioTracks.map((track) => ({
+          ...track,
+          loopPlaylist: track.loopPlaylist ?? false,
+          loopTrack: track.loopTrack ?? false,
+        }))
+        setAudioTracks(loadedAudioTracks)
 
         onOpenChange(false)
         toast({
@@ -88,7 +94,7 @@ export function LoadProfileDialog({ open, onOpenChange }: LoadProfileDialogProps
         })
 
         // Dispatch custom event to notify SoundEffects component
-        window.dispatchEvent(new CustomEvent("profileLoaded", { detail: { soundEffects: newSoundEffects } }))
+        window.dispatchEvent(new CustomEvent("profileLoaded", { detail: { soundEffects: loadedSoundEffects } }))
       } catch (error) {
         console.error("Error loading sound profile:", error)
         toast({

@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useAtom } from "jotai"
 import { soundEffectsAtom, masterVolumeAtom } from "@/lib/atoms"
-import { Switch } from "@/components/ui/switch"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AnimatedSoundwave } from "./AnimatedSoundwave"
+import { IlluminatedToggle } from "../mixer/IlluminatedToggle"
 import type { SoundEffect } from "@/lib/soundEffects"
 import { useToast } from "@/components/ui/use-toast"
 import { Label } from "@/components/ui/label"
@@ -21,6 +21,7 @@ export default function SoundEffects({ isVisible }: SoundEffectsProps) {
   const masterGainNodeRef = useRef<GainNode | null>(null)
   const sourceNodesRef = useRef<{ [key: string]: AudioBufferSourceNode }>({})
   const gainNodesRef = useRef<{ [key: string]: GainNode }>({})
+  const panNodesRef = useRef<{ [key: string]: StereoPannerNode }>({})
   const audioBuffersRef = useRef<{ [key: string]: AudioBuffer }>({})
   const loopTimeoutsRef = useRef<{ [key: string]: NodeJS.Timeout }>({})
   const { toast } = useToast()
@@ -57,19 +58,19 @@ export default function SoundEffects({ isVisible }: SoundEffectsProps) {
       try {
         const response = await fetch(effect.file)
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          console.warn(`Could not fetch sound file: ${effect.name} (${response.status})`)
+          return
         }
         const arrayBuffer = await response.arrayBuffer()
-        const audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer)
+        if (!audioContextRef.current) {
+          console.warn(`AudioContext not available for: ${effect.name}`)
+          return
+        }
+        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer)
         audioBuffersRef.current[effect.name] = audioBuffer
         console.log(`Successfully loaded sound: ${effect.name}`)
       } catch (error) {
-        console.error(`Failed to load sound: ${effect.name}`, error)
-        toast({
-          title: "Error",
-          description: `Failed to load sound: ${effect.name}. Please try again later.`,
-          variant: "destructive",
-        })
+        console.warn(`Could not load sound: ${effect.name}`, error)
       }
     }
 
@@ -93,11 +94,18 @@ export default function SoundEffects({ isVisible }: SoundEffectsProps) {
       const gainNode = audioContextRef.current.createGain()
       gainNode.gain.value = (effect.volume / 100) * (masterVolume / 100)
 
-      source.connect(gainNode)
+      // Create pan node
+      const panNode = audioContextRef.current.createStereoPanner()
+      panNode.pan.value = effect.pan
+
+      // Audio chain: source -> pan -> gain -> master
+      source.connect(panNode)
+      panNode.connect(gainNode)
       gainNode.connect(masterGainNodeRef.current)
 
       sourceNodesRef.current[effect.name] = source
       gainNodesRef.current[effect.name] = gainNode
+      panNodesRef.current[effect.name] = panNode
 
       return source
     },
@@ -113,6 +121,10 @@ export default function SoundEffects({ isVisible }: SoundEffectsProps) {
     if (gainNodesRef.current[name]) {
       gainNodesRef.current[name].disconnect()
       delete gainNodesRef.current[name]
+    }
+    if (panNodesRef.current[name]) {
+      panNodesRef.current[name].disconnect()
+      delete panNodesRef.current[name]
     }
     if (loopTimeoutsRef.current[name]) {
       clearTimeout(loopTimeoutsRef.current[name])
@@ -250,7 +262,40 @@ export default function SoundEffects({ isVisible }: SoundEffectsProps) {
     [setSoundEffects, stopSoundEffect, playWithCrossfade],
   )
 
+  const updatePan = useCallback(
+    (effectName: string, pan: number) => {
+      setSoundEffects((prev) =>
+        prev.map((effect) => {
+          if (effect.name === effectName) {
+            // Update the pan node if the effect is playing
+            if (panNodesRef.current[effectName]) {
+              panNodesRef.current[effectName].pan.value = pan
+            }
+            return { ...effect, pan }
+          }
+          return effect
+        }),
+      )
+    },
+    [setSoundEffects],
+  )
+
   const categories = Array.from(new Set(soundEffects.map((effect) => effect.category)))
+
+  // Listen for pan changes from mixer
+  useEffect(() => {
+    const handleEffectPanChanged = (event: CustomEvent) => {
+      const { name, pan } = event.detail
+      if (panNodesRef.current[name]) {
+        panNodesRef.current[name].pan.value = pan
+      }
+    }
+
+    window.addEventListener("effectPanChanged", handleEffectPanChanged as EventListener)
+    return () => {
+      window.removeEventListener("effectPanChanged", handleEffectPanChanged as EventListener)
+    }
+  }, [])
 
   useEffect(() => {
     soundEffects.forEach((effect) => {
@@ -331,17 +376,17 @@ export default function SoundEffects({ isVisible }: SoundEffectsProps) {
   }, [setSoundEffects])
 
   return (
-    <div className={`h-full overflow-y-auto p-4 pt-6 ${isVisible ? "" : "hidden"}`}>
-      <div className="space-y-2 max-w-4xl mx-auto">
-        <div className="bg-card p-4 sm:p-6 rounded-lg shadow-md space-y-4">
-          <Label className="text-lg font-semibold text-foreground">Sound Effects</Label>
+    <div className={`h-full overflow-y-auto bg-background ${isVisible ? "" : "hidden"}`}>
+      <div className="min-h-full p-6 max-w-7xl mx-auto">
+        <Label className="text-2xl font-bold text-foreground uppercase tracking-wide block mb-6">Sound Effects</Label>
+        <div className="bg-card/30 p-6 rounded-lg border border-border shadow-lg">
           <Accordion type="single" collapsible className="w-full">
             {categories.map((category) => {
               const isPlaying = soundEffects.some((effect) => effect.category === category && effect.isPlaying)
               return (
                 <AccordionItem key={category} value={category} className="border-b border-border last:border-b-0">
                   <div className="flex items-center justify-between">
-                    <AccordionTrigger className="flex-1 text-base sm:text-lg font-semibold text-foreground hover:no-underline">
+                    <AccordionTrigger className="flex-1 text-base font-bold text-foreground hover:no-underline py-5 uppercase tracking-wide">
                       {category}
                     </AccordionTrigger>
                     {isPlaying && (
@@ -351,20 +396,16 @@ export default function SoundEffects({ isVisible }: SoundEffectsProps) {
                     )}
                   </div>
                   <AccordionContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2 pb-4">
                       {soundEffects
                         .filter((effect) => effect.category === category)
                         .map((effect) => (
-                          <div key={effect.name} className="flex items-center justify-between space-x-2">
-                            <div className="flex-grow flex items-center space-x-2">
-                              <Switch
-                                checked={effect.isPlaying}
-                                onCheckedChange={() => toggleSoundEffect(effect.name)}
-                                className="custom-switch"
-                              />
-                              <span className="text-sm font-medium text-foreground">{effect.name}</span>
-                            </div>
-                          </div>
+                          <IlluminatedToggle
+                            key={effect.name}
+                            active={effect.isPlaying}
+                            onToggle={() => toggleSoundEffect(effect.name)}
+                            label={effect.name}
+                          />
                         ))}
                     </div>
                   </AccordionContent>

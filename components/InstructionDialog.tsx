@@ -66,13 +66,13 @@ export function InstructionDialog() {
           <div className="space-y-2">
             <h3 className="font-medium">💾 Saving Profiles</h3>
             <p className="text-sm text-muted-foreground">
-              In the menu (top right), click "Save Profile" to store your current setup.
+              In the menu, click "Save Profile" to store your current setup.
             </p>
           </div>
           <div className="space-y-2">
             <h3 className="font-medium">⏲️ Using Timers</h3>
             <p className="text-sm text-muted-foreground">
-              In the menu (top right), set focus or sleep timers for your sessions.
+              In the menu, set focus or sleep timers for your sessions.
             </p>
           </div>
         </div>

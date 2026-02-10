@@ -58,34 +58,33 @@ export default function AudioPlayer({ isVisible }: AudioPlayerProps) {
   }, [setAudioTracks])
 
   return (
-    <div className={`h-full overflow-y-auto p-4 pt-6 ${isVisible ? '' : 'hidden'}`}>
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <div className="bg-card p-6 rounded-lg shadow-md space-y-4">
-          <div className="flex justify-between items-center">
-            <Label className="text-lg font-semibold text-foreground">Audio Tracks</Label>
-            <Button 
-              onClick={addAudioTrack} 
-              size="sm"
-              className="rounded-md px-2 py-1 text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 ease-in-out"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Add Track
-            </Button>
-          </div>
-          {audioTracks.length === 0 ? (
-            <p className="text-center text-muted-foreground">No active audio tracks. Add a track to get started!</p>
-          ) : (
-            <div className="space-y-4">
-              {audioTracks.map(track => (
-                <AudioTrackItem 
-                  key={track.id} 
-                  track={track} 
-                  onRemove={() => removeAudioTrack(track.id)} 
-                  playerRef={player => playerRefs.current[track.id] = player}
-                />
-              ))}
-            </div>
-          )}
+    <div className={`h-full overflow-y-auto bg-background p-6 ${isVisible ? '' : 'hidden'}`}>
+      <div className="space-y-6 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <Label className="text-lg font-bold text-foreground uppercase tracking-wide">Audio Tracks</Label>
+          <Button 
+            onClick={addAudioTrack} 
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_20px_hsl(var(--primary)/0.5)] transition-all"
+          >
+            <Plus className="h-5 w-5 mr-2" /> Add Track
+          </Button>
         </div>
+        {audioTracks.length === 0 ? (
+          <div className="text-center py-16 text-muted-foreground bg-card/30 rounded-lg border border-border">
+            No active audio tracks. Add a track to get started!
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {audioTracks.map(track => (
+              <AudioTrackItem 
+                key={track.id} 
+                track={track} 
+                onRemove={() => removeAudioTrack(track.id)} 
+                playerRef={player => playerRefs.current[track.id] = player}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -165,50 +164,53 @@ function AudioTrackItem({ track, onRemove, playerRef }: AudioTrackItemProps) {
   }, [track.isPlaying])
 
   return (
-    <div className="bg-card p-4 rounded-lg">
-      <div className="flex flex-col space-y-2">
-        <div className="flex items-center space-x-2">
+    <div className="bg-card border border-border rounded-lg p-4 shadow-lg">
+      <div className="flex flex-col space-y-3">
+        <div className="flex items-center justify-between gap-3">
           <Input
             type="text"
             placeholder="Track name"
             value={track.name}
             onChange={handleNameChange}
-            className="flex-grow bg-input text-foreground border-input focus:ring-primary rounded-md"
+            className="flex-grow bg-input text-foreground border-border focus:ring-primary h-10 font-semibold"
           />
+          <Button 
+            onClick={togglePlayPause}
+            variant="ghost"
+            size="icon"
+            className={`h-10 w-10 border-2 transition-all ${track.isPlaying ? 'border-primary bg-primary/10 text-primary' : 'border-border'}`}
+          >
+            {track.isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
           <Button 
             onClick={onRemove} 
             variant="ghost" 
-            size="sm"
+            size="icon"
+            className="h-10 w-10 hover:bg-destructive/20 hover:text-destructive"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-3">
           <Input
             type="text"
             placeholder="YouTube URL"
             value={track.url}
             onChange={handleSourceChange}
-            className="flex-grow bg-input text-foreground border-input focus:ring-primary rounded-md"
+            className="flex-grow bg-input text-foreground border-border focus:ring-primary h-10"
           />
           <Button 
             onClick={toggleVideoVisibility} 
             variant="ghost" 
-            size="sm"
+            size="icon"
+            className="h-10 w-10 border-2 border-border"
           >
-            {isVideoVisible ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </Button>
-          <Button
-            onClick={togglePlayPause}
-            variant="ghost"
-            size="sm"
-          >
-            {track.isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            {isVideoVisible ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
           </Button>
         </div>
         {track.url && (
           <div className={`mt-2 overflow-hidden transition-all duration-300 ${isVideoVisible ? 'h-auto opacity-100' : 'h-0 opacity-0'}`}>
-            <div className="aspect-video rounded-lg overflow-hidden">
+            <div className="aspect-video rounded-md overflow-hidden border-2 border-border/50">
               <YouTube
                 videoId={getYouTubeId(track.url) || ''}
                 opts={{
